@@ -1,0 +1,208 @@
+package ucs
+
+import (
+	"fmt"
+
+	"github.com/ciscoecosystem/ucs-go-client/client"
+	"github.com/ciscoecosystem/ucs-go-client/models"
+	"github.com/hashicorp/terraform/helper/schema"
+)
+
+func resourceUcsMacpoolPool() *schema.Resource {
+	return &schema.Resource{
+		Create: resourceUcsMacpoolPoolCreate,
+		Update: resourceUcsMacpoolPoolUpdate,
+		Read:   resourceUcsMacpoolPoolRead,
+		Delete: resourceUcsMacpoolPoolDelete,
+
+		Importer: &schema.ResourceImporter{
+			State: resourceAciApplicationProfileImport,
+		},
+
+		SchemaVersion: 1,
+
+		Schema: AppendBaseAttrSchema(map[string]*schema.Schema{
+			"org_org_dn": &schema.Schema{
+				Type:     schema.TypeString,
+				Required: true,
+			},
+
+			"name": &schema.Schema{
+				Type:     schema.TypeString,
+				Required: true,
+			},
+
+			"assignment_order": &schema.Schema{
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "Mo doc not defined in techpub!!!",
+			},
+
+			"child_action": &schema.Schema{
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "Mo doc not defined in techpub!!!",
+			},
+
+			"int_id": &schema.Schema{
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "priority class id",
+			},
+
+			"policy_owner": &schema.Schema{
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "Policy owner",
+			},
+		}),
+	}
+}
+
+func getRemoteMacpoolPool(client *client.Client, dn string) (*models.MacpoolPool, error) {
+	macpoolPoolDoc, err := client.Get(dn)
+	if err != nil {
+		return nil, err
+	}
+
+	macpoolPool := models.MacpoolPoolFromDoc(macpoolPoolDoc, "configResolveDn")
+
+	if macpoolPool.DistinguishedName == "" {
+		return nil, fmt.Errorf("MacpoolPool %s not found", dn)
+	}
+
+	return macpoolPool, nil
+}
+
+func setMacpoolPoolAttributes(macpoolPool *models.MacpoolPool, d *schema.ResourceData) *schema.ResourceData {
+	d.SetId(macpoolPool.DistinguishedName)
+	d.Set("description", macpoolPool.Description)
+	d.Set("org_org_dn", GetParentDn(macpoolPool.DistinguishedName))
+	macpoolPoolMap, _ := macpoolPool.ToMap()
+	d.Set("name", macpoolPoolMap["name"])
+
+	d.Set("assignment_order", macpoolPoolMap["assignmentOrder"])
+	d.Set("child_action", macpoolPoolMap["childAction"])
+	d.Set("int_id", macpoolPoolMap["intId"])
+	d.Set("policy_owner", macpoolPoolMap["policyOwner"])
+	return d
+}
+
+func resourceAciApplicationProfileImport(d *schema.ResourceData, m interface{}) ([]*schema.ResourceData, error) {
+
+	ucsClient := m.(*client.Client)
+
+	dn := d.Id()
+
+	macpoolPool, err := getRemoteMacpoolPool(ucsClient, dn)
+
+	if err != nil {
+		return nil, err
+	}
+	schemaFilled := setMacpoolPoolAttributes(macpoolPool, d)
+	return []*schema.ResourceData{schemaFilled}, nil
+}
+
+func resourceUcsMacpoolPoolCreate(d *schema.ResourceData, m interface{}) error {
+	ucsClient := m.(*client.Client)
+	desc := d.Get("description").(string)
+
+	name := d.Get("name").(string)
+
+	OrgOrgDn := d.Get("org_org_dn").(string)
+
+	macpoolPoolAttr := models.MacpoolPoolAttributes{}
+	if Name, ok := d.GetOk("name"); ok {
+		macpoolPoolAttr.Name = Name.(string)
+	}
+	if AssignmentOrder, ok := d.GetOk("assignment_order"); ok {
+		macpoolPoolAttr.Assignment_order = AssignmentOrder.(string)
+	}
+	if ChildAction, ok := d.GetOk("child_action"); ok {
+		macpoolPoolAttr.Child_action = ChildAction.(string)
+	}
+	if IntID, ok := d.GetOk("int_id"); ok {
+		macpoolPoolAttr.Int_id = IntID.(string)
+	}
+	if PolicyOwner, ok := d.GetOk("policy_owner"); ok {
+		macpoolPoolAttr.Policy_owner = PolicyOwner.(string)
+	}
+
+	macpoolPool := models.NewMacpoolPool(fmt.Sprintf("mac-pool-%s", name), OrgOrgDn, desc, macpoolPoolAttr)
+
+	err := ucsClient.Save(macpoolPool)
+	if err != nil {
+		return err
+	}
+
+	d.SetId(macpoolPool.DistinguishedName)
+	return resourceUcsMacpoolPoolRead(d, m)
+}
+
+func resourceUcsMacpoolPoolRead(d *schema.ResourceData, m interface{}) error {
+	ucsClient := m.(*client.Client)
+
+	dn := d.Id()
+	macpoolPool, err := getRemoteMacpoolPool(ucsClient, dn)
+
+	if err != nil {
+		d.SetId("")
+		return nil
+	}
+	setMacpoolPoolAttributes(macpoolPool, d)
+
+	return nil
+}
+
+func resourceUcsMacpoolPoolDelete(d *schema.ResourceData, m interface{}) error {
+	ucsClient := m.(*client.Client)
+	dn := d.Id()
+	err := ucsClient.DeleteByDn(dn, "macpoolPool")
+	if err != nil {
+		return err
+	}
+
+	d.SetId("")
+	return err
+}
+
+func resourceUcsMacpoolPoolUpdate(d *schema.ResourceData, m interface{}) error {
+	ucsClient := m.(*client.Client)
+	desc := d.Get("description").(string)
+
+	name := d.Get("name").(string)
+
+	OrgOrgDn := d.Get("org_org_dn").(string)
+
+	macpoolPoolAttr := models.MacpoolPoolAttributes{}
+	if Name, ok := d.GetOk("name"); ok {
+		macpoolPoolAttr.Name = Name.(string)
+	}
+	if AssignmentOrder, ok := d.GetOk("assignment_order"); ok {
+		macpoolPoolAttr.Assignment_order = AssignmentOrder.(string)
+	}
+	if ChildAction, ok := d.GetOk("child_action"); ok {
+		macpoolPoolAttr.Child_action = ChildAction.(string)
+	}
+	if IntID, ok := d.GetOk("int_id"); ok {
+		macpoolPoolAttr.Int_id = IntID.(string)
+	}
+	if PolicyOwner, ok := d.GetOk("policy_owner"); ok {
+		macpoolPoolAttr.Policy_owner = PolicyOwner.(string)
+	}
+
+	macpoolPool := models.NewMacpoolPool(fmt.Sprintf("mac-pool-%s", name), OrgOrgDn, desc, macpoolPoolAttr)
+	macpoolPool.Status = "modified"
+	err := ucsClient.Save(macpoolPool)
+	if err != nil {
+		return err
+	}
+
+	d.SetId(macpoolPool.DistinguishedName)
+	return resourceUcsMacpoolPoolRead(d, m)
+
+}
