@@ -44,7 +44,11 @@ func Provider() terraform.ResourceProvider {
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
-			"ucs_mac_pool_pool": resourceUcsMacpoolPool(),
+			"ucs_mac_pool_pool":            resourceUcsMacpoolPool(),
+			"ucs_mac_pool_pool_block":      resourceUcsMacpoolBlock(),
+			"ucs_disk_group_config_policy": resourceUcsLstorageDiskGroupConfigPolicy(),
+			"ucs_disk_group_qualifier":     resourceUcsLstorageDiskGroupQualifier(),
+			"ucs_disk_config_reference":    resourceUcsLstorageLocalDiskConfigRef(),
 		},
 
 		// DataSourcesMap: map[string]*schema.Resource{
