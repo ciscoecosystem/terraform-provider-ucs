@@ -57,6 +57,12 @@ func Provider() terraform.ResourceProvider {
 			"ucs_vnic_ether":               resourceUcsVnicEther(),
 			"ucs_vnic_iscsi_lcp":           resourceUcsVnicIScsiLCP(),
 			"ucs_vnic_vlan":                resourceUcsVnicVlan(),
+			"ucs_ntp_provider":             resourceUcsCommNtpProvider(),
+			"ucs_org":                      resourceUcsOrgOrg(),
+			"ucs_vnic_san_policy":          resourceUcsVnicSanConnPolicy(),
+			"ucs_vnic_fc_if":               resourceUcsVnicFcIf(),
+			"ucs_vnic_fc_node":             resourceUcsVnicFcNode(),
+			"ucs_vnic_fc":                  resourceUcsVnicFc(),
 		},
 
 		// DataSourcesMap: map[string]*schema.Resource{
