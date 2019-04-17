@@ -49,6 +49,14 @@ func Provider() terraform.ResourceProvider {
 			"ucs_disk_group_config_policy": resourceUcsLstorageDiskGroupConfigPolicy(),
 			"ucs_disk_group_qualifier":     resourceUcsLstorageDiskGroupQualifier(),
 			"ucs_disk_config_reference":    resourceUcsLstorageLocalDiskConfigRef(),
+			"ucs_dns_provider":             resourceUcsCommDnsProvider(),
+			"ucs_ip_pool_pool":             resourceUcsIppoolPool(),
+			"ucs_ip_pool_block":            resourceUcsIppoolBlock(),
+			"ucs_ip_pool_ipv6_block":       resourceUcsIppoolIpV6Block(),
+			"ucs_vnic_lan_conn_policy":     resourceUcsVnicLanConnPolicy(),
+			"ucs_vnic_ether":               resourceUcsVnicEther(),
+			"ucs_vnic_iscsi_lcp":           resourceUcsVnicIScsiLCP(),
+			"ucs_vnic_vlan":                resourceUcsVnicVlan(),
 		},
 
 		// DataSourcesMap: map[string]*schema.Resource{
