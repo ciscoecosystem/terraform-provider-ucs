@@ -2,7 +2,6 @@ package ucs
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/ciscoecosystem/ucs-go-client/client"
 	"github.com/ciscoecosystem/ucs-go-client/models"
@@ -100,7 +99,6 @@ func resourceUcsVnicIScsiNode() *schema.Resource {
 
 func getRemoteVnicIScsiNode(client *client.Client, dn string) (*models.VnicIScsiNode, error) {
 	vnicIScsiNodeDoc, err := client.Get(dn)
-
 	if err != nil {
 		return nil, err
 	}
@@ -110,7 +108,6 @@ func getRemoteVnicIScsiNode(client *client.Client, dn string) (*models.VnicIScsi
 	if vnicIScsiNode.DistinguishedName == "" {
 		return nil, fmt.Errorf("VnicIScsiNode %s not found", dn)
 	}
-	log.Printf("\n\n\n**************** here *********")
 
 	return vnicIScsiNode, nil
 }

@@ -72,6 +72,11 @@ func Provider() terraform.ResourceProvider {
 			"ucs_vnic_isci_node":           resourceUcsVnicIScsiNode(),
 			"ucs_lstorage_profile_binding": resourceUcsLstorageProfileBinding(),
 			"ucs_vnic_ipv4_pool_addr":      resourceUcsVnicIpV4MgmtPooledAddr(),
+			"ucs_lstorage_profile":         resourceUcsLstorageProfile(),
+			"ucs_lstorage_das_scsi_lun":    resourceUcsLstorageDasScsiLun(),
+			"ucs_uuid_pool":                resourceUcsUuidpoolPool(),
+			"ucs_uuid_pool_block":          resourceUcsUuidpoolBlock(),
+			"ucs_san_conn_template":        resourceUcsVnicSanConnTempl(),
 		},
 
 		ConfigureFunc: configureClient,
