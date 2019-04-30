@@ -77,6 +77,12 @@ func Provider() terraform.ResourceProvider {
 			"ucs_uuid_pool":                resourceUcsUuidpoolPool(),
 			"ucs_uuid_pool_block":          resourceUcsUuidpoolBlock(),
 			"ucs_san_conn_template":        resourceUcsVnicSanConnTempl(),
+			"ucs_fabric_vlan":              resourceUcsFabricVlan(),
+			"ucs_vnic_lan_conn_template":   resourceUcsVnicLanConnTempl(),
+			"ucs_vnic_ether_if":            resourceUcsVnicEtherIf(),
+			"ucs_fabric_vsan":              resourceUcsFabricVsan(),
+			"ucs_fcpool_initiators":        resourceUcsFcpoolInitiators(),
+			"ucs_fcpool_block":             resourceUcsFcpoolBlock(),
 		},
 
 		ConfigureFunc: configureClient,
