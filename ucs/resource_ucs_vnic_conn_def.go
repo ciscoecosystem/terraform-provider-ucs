@@ -174,7 +174,7 @@ func resourceUcsVnicConnDefCreate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	vnicConnDef := models.NewVnicConnDef(fmt.Sprintf("conn-def"), LsServer, desc, vnicConnDefAttr)
-
+	vnicConnDef.Status = "modified"
 	err := ucsClient.Save(vnicConnDef)
 	if err != nil {
 		return err
